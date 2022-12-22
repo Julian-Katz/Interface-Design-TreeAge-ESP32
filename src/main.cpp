@@ -32,8 +32,8 @@ bool oldDeviceConnected = false;
 // See the following for generating UUIDs:
 // https://www.uuidgenerator.net/
 
-#define SERVICE_UUID        "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
-#define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+#define SERVICE_UUID        "c48e6067-5295-48d3-8d5c-0395f61792b1"
+#define CHARACTERISTIC_UUID "c48e6067-5295-48d3-8d5c-0395f61792b2"
 
 
 class MyServerCallbacks: public BLEServerCallbacks {
@@ -50,7 +50,8 @@ class MyServerCallbacks: public BLEServerCallbacks {
 long int rotValue=0, swValue=0;
 float rotations = 0;
 uint8_t state=0;
-float length;
+float lengthCm;
+uint8_t lengthMm = 0;
 
 
 #define ROTARY_PINA 32
@@ -140,10 +141,12 @@ void loop() {
     // notify changed value
     if (deviceConnected) {
         rotations = (float) rotValue / ONE_ROTATION;
-        length = rotations * 2 * 3.14 * 2.5;
-        Serial.println(length);
+        lengthCm = fabs(rotations * 2 * 3.14 * 2.5);
+        Serial.println(lengthCm);
+        lengthMm = lengthCm * 10;
         char lengthString[8];
-        dtostrf(length, 1, 1, lengthString);
+        dtostrf(lengthMm, 1, 1, lengthString);
+        Serial.println(lengthMm);
         pCharacteristic->setValue(lengthString);
         pCharacteristic->notify();
         delay(100); // bluetooth stack will go into congestion, if too many packets are sent
