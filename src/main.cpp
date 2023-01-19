@@ -35,10 +35,18 @@ bool oldDeviceConnected = false;
 #define SERVICE_UUID        "c48e6067-5295-48d3-8d5c-0395f61792b1"
 #define CHARACTERISTIC_UUID "c48e6067-5295-48d3-8d5c-0395f61792b2"
 
+// rotary encoder
+long int rotValue=0, swValue=0;
+float rotations = 0;
+uint8_t state=0;
+float lengthCm;
+uint32_t lengthMm = 0;
 
 class MyServerCallbacks: public BLEServerCallbacks {
     void onConnect(BLEServer* pServer) {
       deviceConnected = true;
+      rotValue=0, swValue=0;
+
     };
 
     void onDisconnect(BLEServer* pServer) {
@@ -46,12 +54,6 @@ class MyServerCallbacks: public BLEServerCallbacks {
     }
 };
 
-// rotary encoder
-long int rotValue=0, swValue=0;
-float rotations = 0;
-uint8_t state=0;
-float lengthCm;
-uint8_t lengthMm = 0;
 
 
 #define ROTARY_PINA 32
@@ -142,12 +144,9 @@ void loop() {
     if (deviceConnected) {
         rotations = (float) rotValue / ONE_ROTATION;
         lengthCm = fabs(rotations * 2 * 3.14 * 2.5);
-        Serial.println(lengthCm);
         lengthMm = lengthCm * 10;
-        char lengthString[8];
-        dtostrf(lengthMm, 1, 1, lengthString);
         Serial.println(lengthMm);
-        pCharacteristic->setValue(lengthString);
+        pCharacteristic->setValue(lengthMm);
         pCharacteristic->notify();
         delay(100); // bluetooth stack will go into congestion, if too many packets are sent
     }
